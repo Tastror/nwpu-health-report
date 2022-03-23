@@ -77,9 +77,9 @@ if __name__ == "__main__":
         user, passwd = config["username"], config["password"]
         start_time = re.split("[:：.]", config.get("time", "0:30"))
         start_time = int(start_time[0]) * 60 + int(start_time[1])
+        health_report(user, passwd)
         now_time = time.localtime(time.time())
         now_time = now_time.tm_hour * 60 + now_time.tm_min
-        health_report(user, passwd)
 
         if start_time > now_time:
             print("下次填报将等待", (start_time - now_time), "分钟\n")
