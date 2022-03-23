@@ -64,6 +64,7 @@ def health_report(username: str, password: str):
         # bar.end()
         print("\033[1;32m疫情填报完成\033[0m")
     except Exception as e:
+        del bar
         print(e)
         print("\033[1;31m今日填报有误，请手动完成\033[0m")
 
