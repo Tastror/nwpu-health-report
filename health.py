@@ -71,13 +71,13 @@ def health_report(username: str, password: str):
 if __name__ == "__main__":
     config: dict = json.load(open('./config.json', 'r', encoding='utf-8'))
     user, passwd = config["username"], config["password"]
+    start_time = re.split("[:：.]", config.get("time", "0:30"))
+    start_time = int(start_time[0]) * 60 + int(start_time[1])
     print("正在测试填报")
     health_report(user, passwd)
     while True:
         now_time = time.localtime(time.time())
         now_time = now_time.tm_hour * 60 + now_time.tm_min
-        start_time = re.split("[:：.]", config.get("time", "0:30"))
-        start_time = int(start_time[0]) * 60 + int(start_time[1])
         if start_time > now_time:
             print("下次填报将等待", (start_time - now_time), "分钟\n")
             time.sleep(60 * (start_time - now_time))
