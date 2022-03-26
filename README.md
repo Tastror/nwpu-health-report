@@ -7,6 +7,10 @@
 
 - 修改 config.json
 
+- 安装 chrome
+
+- 安装依赖项
+
 - 运行
 
   ```python
