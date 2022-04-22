@@ -53,6 +53,7 @@ def health_report(username: str, password: str):
         bar.update(35, 0.08)
         browser.get('''http://yqtb.nwpu.edu.cn/wx/xg/yz-mobile/index.jsp''')
         browser.get('''http://yqtb.nwpu.edu.cn/wx/ry/jrsb_xs.jsp''')
+<<<<<<< HEAD
         time.sleep(3)
         # 如果不能运行，改为 javascript:go_sub();
         browser.execute_script('javascript:go_subfx();')
@@ -62,6 +63,12 @@ def health_report(username: str, password: str):
         # 如果不能运行，改为 javascript:save();
         browser.execute_script('javascript:savefx();')
         bar.update(10, 0.1)
+=======
+        browser.execute_script('javascript:go_sub();')
+        browser.find_element(by=By.CSS_SELECTOR, value=r'#brcn+i').click()
+        browser.execute_script('javascript:save();')
+        bar.update(25, 0.1)
+>>>>>>> 0d2b0dcf563869585a04b028f1b1468524f6f612
         time.sleep(3)
         print("\033[1;32m" + username + "疫情填报完成\033[0m")
     except Exception as e:
