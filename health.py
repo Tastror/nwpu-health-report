@@ -31,7 +31,7 @@ class trange_bar:
 
 def health_report(username: str, password: str):
     print(time.asctime(time.localtime(time.time())))
-    print("\033[1;32m开始疫情填报\033[0m")
+    print("\033[1;32m" + username + "开始疫情填报\033[0m")
     bar = trange_bar(100)
     try:
         bar.update(35, 0.2)
@@ -50,19 +50,24 @@ def health_report(username: str, password: str):
         browser.find_element(by=By.CSS_SELECTOR, value=r'#username').send_keys(username)
         browser.find_element(by=By.CSS_SELECTOR, value=r'#password').send_keys(password)
         browser.find_element(by=By.CSS_SELECTOR, value=r'[name=submit]').click()
-        bar.update(20, 0.1)
+        bar.update(35, 0.08)
         browser.get('''http://yqtb.nwpu.edu.cn/wx/xg/yz-mobile/index.jsp''')
-        browser.get('''http://yqtb.nwpu.edu.cn/wx/ry/jrsb_js.jsp''')
-        browser.execute_script('javascript:go_subfx();')
-        browser.find_element(by=By.CSS_SELECTOR, value=r'#brcn+i').click()
-        browser.execute_script('javascript:savefx();')
-        bar.update(25, 0.1)
+        browser.get('''http://yqtb.nwpu.edu.cn/wx/ry/jrsb_xs.jsp''')
         time.sleep(3)
-        print("\033[1;32m疫情填报完成\033[0m")
+        # 如果不能运行，改为 javascript:go_sub();
+        browser.execute_script('javascript:go_subfx();')
+        time.sleep(3)
+        browser.find_element(by=By.CSS_SELECTOR, value=r'#brcn+i').click()
+        time.sleep(3)
+        # 如果不能运行，改为 javascript:save();
+        browser.execute_script('javascript:savefx();')
+        bar.update(10, 0.1)
+        time.sleep(3)
+        print("\033[1;32m" + username + "疫情填报完成\033[0m")
     except Exception as e:
         bar.end()
         print(e)
-        print("\033[1;31m今日填报有误，请手动完成\033[0m")
+        print("\033[1;31m" + username + "今日填报有误，请手动完成\033[0m")
 
 
 if __name__ == "__main__":
