@@ -62,10 +62,6 @@ def health_report(username: str, password: str):
         # 如果不能运行，改为 javascript:save();
         browser.execute_script('javascript:savefx();')
         bar.update(10, 0.1)
-        browser.execute_script('javascript:go_sub();')
-        browser.find_element(by=By.CSS_SELECTOR, value=r'#brcn+i').click()
-        browser.execute_script('javascript:save();')
-        bar.update(25, 0.1)
         time.sleep(3)
         print("\033[1;32m" + username + "疫情填报完成\033[0m")
     except Exception as e:
