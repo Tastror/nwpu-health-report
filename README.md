@@ -5,11 +5,11 @@
 
 - clone 本仓库
 
-- 修改 config.json
-
 - 安装 chrome
 
 - 安装依赖项
+
+- 仿照样例修改 config.json
 
 - 运行
 

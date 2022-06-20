@@ -1,6 +1,13 @@
-{
-    "doc": "请务必保管好自己的账号密码！",
-    "username": "2020300000",
-    "password": "123456abc",
-    "time": "6:00"
-}
+[
+  "6:00",
+  [
+    {
+      "username": "2020000000",
+      "password": "123456"
+    },
+    {
+      "username": "2021000000",
+      "password": "hello,world"
+    }
+  ]
+]
