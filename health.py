@@ -39,7 +39,7 @@ def health_report(username: str, password: str):
     print("当前时间", time.asctime(time.localtime(time.time())))
     print("\033[1;32m" + username + " 开始疫情填报\033[0m")
 
-    user_fx: int = 1 if username.startswith('2020') else 0
+    user_fx: int = 0 if username.startswith('2022') else 1
     try_time: int = 6
     success: bool = False
 
@@ -51,7 +51,7 @@ def health_report(username: str, password: str):
         try:
             bar.update(30, 0.15)
             option = webdriver.ChromeOptions()
-            # option.add_argument("--headless")
+            option.add_argument("--headless")
             option.add_argument('--log-level=3')
             option.add_argument("--disable-logging")
             option.add_argument("--disable-notifications")
@@ -67,7 +67,6 @@ def health_report(username: str, password: str):
             browser.find_element(by=By.CSS_SELECTOR, value=r'#password').send_keys(password)
             browser.find_element(by=By.CSS_SELECTOR, value=r'[name=submit]').click()
             bar.update(15, 0.22)
-            # browser.get('''http://yqtb.nwpu.edu.cn/wx/xg/yz-mobile/index.jsp''')
             browser.get('''http://yqtb.nwpu.edu.cn/wx/ry/jrsb_xs.jsp''')
             time.sleep(3)
             browser.execute_script(go_sub[user_fx])
