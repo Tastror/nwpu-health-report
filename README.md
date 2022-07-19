@@ -1,5 +1,5 @@
 # nwpu-health-report
-某高校疫情填报
+NWPU 疫情填报
 
 ## 使用方式
 
