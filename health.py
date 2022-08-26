@@ -11,11 +11,6 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
 
-fx = ['no fx', 'fx']
-go_sub = ['javascript:go_sub();', 'javascript:go_subfx();']
-save = ['javascript:save();', 'javascript:savefx();']
-
-
 class TrangeBar:
     def __init__(self, all_length):
         self.bar = trange(all_length, bar_format="%s{l_bar}{bar}{r_bar}%s" % (Fore.LIGHTBLUE_EX, Fore.RESET))
@@ -24,10 +19,10 @@ class TrangeBar:
     def end(self):
         self.stop = True
 
-    def loop(self, length, times):
+    def loop(self, length, speed):
         for _ in range(length):
             if self.stop: break
-            time.sleep(times)
+            time.sleep(speed * length / 1000)
             self.bar.update(1)
 
     def update(self, length, times):
@@ -39,17 +34,16 @@ def health_report(username: str, password: str):
     print("当前时间", time.asctime(time.localtime(time.time())))
     print("\033[1;32m" + username + " 开始疫情填报\033[0m")
 
-    user_fx: int = 0 if username.startswith('2022') else 1
     try_time: int = 6
     success: bool = False
 
     for i in range(try_time):
-        if i != 0 and i % 2 == 0:
-            user_fx = 1 - user_fx
-        print("\033[1;32m" + username + " 第" + "一二三四五六"[i] + "次填报开始，选用 " + fx[user_fx] + " 方法\033[0m")
+        print("\033[1;32m" + username + " 第" + "一二三四五六"[i] + "次填报开始\033[0m")
         bar = TrangeBar(100)
         try:
-            bar.update(30, 0.15)
+
+            bar.update(30, 5)
+            print("\n\033[1;34m步骤 1/5：启动浏览器\033[0m")
             option = webdriver.ChromeOptions()
             option.add_argument("--headless")
             option.add_argument('--log-level=3')
@@ -59,36 +53,53 @@ def health_report(username: str, password: str):
             os.environ['WDM_LOG_LEVEL'] = '0'
             warnings.filterwarnings("ignore")
             browser = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=option)
+
+            bar.update(10, 10)
+            print("\n\033[1;34m步骤 2/5：访问填报网页\033[0m")
+            # 不需要从学校网站进一遍
             # browser.get("https://ecampus.nwpu.edu.cn")
             browser.get('''http://yqtb.nwpu.edu.cn/wx/xg/yz-mobile/index.jsp''')
-            bar.update(15, 0.2)
             time.sleep(1)
-            browser.find_element(by=By.CSS_SELECTOR, value=r'#username').send_keys(username)
-            browser.find_element(by=By.CSS_SELECTOR, value=r'#password').send_keys(password)
-            browser.find_element(by=By.CSS_SELECTOR, value=r'[name=submit]').click()
-            bar.update(15, 0.22)
-            browser.get('''http://yqtb.nwpu.edu.cn/wx/ry/jrsb_xs.jsp''')
+
+            bar.update(20, 10)
+            print("\n\033[1;34m步骤 3/5：填写账号密码并跳转\033[0m")
+            browser.find_elements(by=By.CSS_SELECTOR, value=r'#username')[0].send_keys(username)
+            browser.find_elements(by=By.CSS_SELECTOR, value=r'#password')[0].send_keys(password)
+            browser.find_elements(by=By.CSS_SELECTOR, value=r'[name=submit]')[0].click()
             time.sleep(3)
-            browser.execute_script(go_sub[user_fx])
-            bar.update(30, 0.19)
-            time.sleep(3)
-            browser.find_element(by=By.CSS_SELECTOR, value=r'#brcn+i').click()
-            time.sleep(3)
-            browser.execute_script(save[user_fx])
-            bar.update(10, 0.15)
+            # 新版不需要再进入一次了，会直接跳转到填报
+            # browser.get('''http://yqtb.nwpu.edu.cn/wx/ry/jrsb_xs.jsp''')
+
+            bar.update(30, 6)
+            print("\n\033[1;34m步骤 4/5：确认并提交填报信息\033[0m")
+            if len(browser.find_elements(by=By.CSS_SELECTOR, value=r"#layui-layer1")) != 0:
+                bar.end()
+                print("\033[1;31m" + username + " 第" + "一二三四五六"[i] + "次填报未在规定时间进行，将直接退出\033[0m")
+                return
+            browser.find_elements(by=By.CSS_SELECTOR, value=r'.weui-btn.weui-btn_primary')[0].click()
+            time.sleep(1.5)
+            browser.find_elements(by=By.CSS_SELECTOR, value=r'.weui-cells.weui-cells_checkbox')[0].click()
+            time.sleep(0.5)
+            browser.execute_script("javascript:save()")
+
+            bar.update(10, 15)
+            print("\n\033[1;34m步骤 5/5：等待填报完成\033[0m")
             time.sleep(4.5)
-            print("\033[1;32m" + username + " 疫情填报完成\033[0m")
+
+            print("\n\033[1;32m" + username + " 疫情填报完成\033[0m")
             success = True
+
         except Exception as e:
             bar.end()
-            print()
-            print(e)
+            print("\n", e, sep="")
             print("\033[1;31m" + username + " 第" + "一二三四五六"[i] + "次填报有误\033[0m")
+            time.sleep(2)
+
         if success:
             break
 
     if not success:
-        print("\033[1;31m" + username + " 今日填报有误，请手动完成\033[0m")
+        print("\033[1;31m" + username + " 今日填均有误，请手动完成\033[0m")
 
 
 if __name__ == "__main__":
