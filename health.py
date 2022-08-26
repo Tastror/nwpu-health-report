@@ -19,10 +19,10 @@ class TrangeBar:
     def end(self):
         self.stop = True
 
-    def loop(self, length, speed):
+    def loop(self, length, time_per_dot):
         for _ in range(length):
             if self.stop: break
-            time.sleep(speed * length / 1000)
+            time.sleep(time_per_dot * length / 1000)
             self.bar.update(1)
 
     def update(self, length, times):
@@ -42,7 +42,7 @@ def health_report(username: str, password: str):
         bar = TrangeBar(100)
         try:
 
-            bar.update(30, 5)
+            bar.update(20, 8)
             print("\n\033[1;34m步骤 1/5：启动浏览器\033[0m")
             option = webdriver.ChromeOptions()
             option.add_argument("--headless")
@@ -54,7 +54,7 @@ def health_report(username: str, password: str):
             warnings.filterwarnings("ignore")
             browser = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=option)
 
-            bar.update(10, 10)
+            bar.update(20, 10)
             print("\n\033[1;34m步骤 2/5：访问填报网页\033[0m")
             # 不需要从学校网站进一遍
             # browser.get("https://ecampus.nwpu.edu.cn")
@@ -70,7 +70,7 @@ def health_report(username: str, password: str):
             # 新版不需要再进入一次了，会直接跳转到填报
             # browser.get('''http://yqtb.nwpu.edu.cn/wx/ry/jrsb_xs.jsp''')
 
-            bar.update(30, 6)
+            bar.update(20, 6)
             print("\n\033[1;34m步骤 4/5：确认并提交填报信息\033[0m")
             if len(browser.find_elements(by=By.CSS_SELECTOR, value=r"#layui-layer1")) != 0:
                 bar.end()
@@ -82,7 +82,7 @@ def health_report(username: str, password: str):
             time.sleep(0.5)
             browser.execute_script("javascript:save()")
 
-            bar.update(10, 15)
+            bar.update(20, 15)
             print("\n\033[1;34m步骤 5/5：等待填报完成\033[0m")
             time.sleep(4.5)
 
@@ -99,7 +99,7 @@ def health_report(username: str, password: str):
             break
 
     if not success:
-        print("\033[1;31m" + username + " 今日填均有误，请手动完成\033[0m")
+        print("\033[1;31m" + username + " 今日填报均有误，请手动完成\033[0m")
 
 
 if __name__ == "__main__":
