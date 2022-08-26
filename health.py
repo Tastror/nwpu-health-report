@@ -2,8 +2,10 @@ import re
 import os
 import json
 import time
+import logging
 import warnings
 import threading
+import logging.handlers
 from tqdm import trange
 from colorama import Fore
 from selenium import webdriver
@@ -29,21 +31,60 @@ class TrangeBar:
         threading.Thread(target=self.loop, args=(length, times), daemon=True).start()
 
 
+class LoggerHealth:
+    def __init__(self):
+        self.logger_health = logging.getLogger("health")
+        self.logger_health.setLevel(logging.INFO)
+
+        hfh = logging.handlers.RotatingFileHandler(
+            'health.log', mode="a", maxBytes=1024*1024, backupCount=2
+        )
+        rh_formatter = logging.Formatter(
+            "%(asctime)s - %(module)s - %(funcName)s - %(levelname)s - %(message)s"
+        )
+        hfh.setFormatter(rh_formatter)
+        self.logger_health.addHandler(hfh)
+
+        # hsh = logging.StreamHandler(sys.stdout)
+        # hsh.setFormatter(rh_formatter)
+        # self.logger_health.addHandler(hsh)
+
+    def info(self, *args, **kwargs):
+        self.logger_health.info(*args, **kwargs)
+        print("\033[1;34mINFO - ", args[0], "\033[0m", sep="")
+
+    def error(self, *args, **kwargs):
+        self.logger_health.error(*args, **kwargs)
+        print("\033[1;31mERROR - ", args[0], "\033[0m", sep="")
+
+    def debug(self, *args, **kwargs):
+        self.logger_health.debug(*args, **kwargs)
+        print("\033[1;32mDEBUG - ", args[0], "\033[0m", sep="")
+
+    def warning(self, *args, **kwargs):
+        self.logger_health.warning(*args, **kwargs)
+        print("\033[1;33mWARN - ", args[0], "\033[0m", sep="")
+
+
+logger_health = LoggerHealth()
+
+
 def health_report(username: str, password: str):
 
-    print("当前时间", time.asctime(time.localtime(time.time())))
-    print("\033[1;32m" + username + " 开始疫情填报\033[0m")
+    logger_health.warning("当前时间" + time.asctime(time.localtime(time.time())))
+    logger_health.info(username + " 开始疫情填报")
 
     try_time: int = 6
     success: bool = False
 
     for i in range(try_time):
-        print("\033[1;32m" + username + " 第" + "一二三四五六"[i] + "次填报开始\033[0m")
+        logger_health.info(username + " 第" + "一二三四五六"[i] + "次填报开始")
         bar = TrangeBar(100)
+
         try:
 
             bar.update(20, 8)
-            print("\n\033[1;34m步骤 1/5：启动浏览器\033[0m")
+            logger_health.info("步骤 1/5：启动浏览器")
             option = webdriver.ChromeOptions()
             option.add_argument("--headless")
             option.add_argument('--log-level=3')
@@ -55,14 +96,14 @@ def health_report(username: str, password: str):
             browser = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=option)
 
             bar.update(20, 10)
-            print("\n\033[1;34m步骤 2/5：访问填报网页\033[0m")
+            logger_health.info("步骤 2/5：访问填报网页")
             # 不需要从学校网站进一遍
             # browser.get("https://ecampus.nwpu.edu.cn")
             browser.get('''http://yqtb.nwpu.edu.cn/wx/xg/yz-mobile/index.jsp''')
             time.sleep(1)
 
             bar.update(20, 10)
-            print("\n\033[1;34m步骤 3/5：填写账号密码并跳转\033[0m")
+            logger_health.info("步骤 3/5：填写账号密码并跳转")
             browser.find_elements(by=By.CSS_SELECTOR, value=r'#username')[0].send_keys(username)
             browser.find_elements(by=By.CSS_SELECTOR, value=r'#password')[0].send_keys(password)
             browser.find_elements(by=By.CSS_SELECTOR, value=r'[name=submit]')[0].click()
@@ -71,10 +112,10 @@ def health_report(username: str, password: str):
             # browser.get('''http://yqtb.nwpu.edu.cn/wx/ry/jrsb_xs.jsp''')
 
             bar.update(20, 6)
-            print("\n\033[1;34m步骤 4/5：确认并提交填报信息\033[0m")
+            logger_health.info("步骤 4/5：确认并提交填报信息")
             if len(browser.find_elements(by=By.CSS_SELECTOR, value=r"#layui-layer1")) != 0:
                 bar.end()
-                print("\033[1;31m" + username + " 第" + "一二三四五六"[i] + "次填报未在规定时间进行，将直接退出\033[0m")
+                logger_health.error(username + " 第" + "一二三四五六"[i] + "次填报未在规定时间进行，将直接退出")
                 return
             browser.find_elements(by=By.CSS_SELECTOR, value=r'.weui-btn.weui-btn_primary')[0].click()
             time.sleep(1.5)
@@ -83,23 +124,23 @@ def health_report(username: str, password: str):
             browser.execute_script("javascript:save()")
 
             bar.update(20, 15)
-            print("\n\033[1;34m步骤 5/5：等待填报完成\033[0m")
+            logger_health.info("步骤 5/5：等待填报完成")
             time.sleep(4.5)
 
-            print("\n\033[1;32m" + username + " 疫情填报完成\033[0m")
+            logger_health.info(username + " 疫情填报完成")
             success = True
 
         except Exception as e:
             bar.end()
-            print("\n", e, sep="")
-            print("\033[1;31m" + username + " 第" + "一二三四五六"[i] + "次填报有误\033[0m")
+            logger_health.error(e)
+            logger_health.error(username + " 第" + "一二三四五六"[i] + "次填报有误")
             time.sleep(2)
 
         if success:
             break
 
     if not success:
-        print("\033[1;31m" + username + " 今日填报均有误，请手动完成\033[0m")
+        logger_health.error(username + " 今日填报均有误，请手动完成")
 
 
 if __name__ == "__main__":
@@ -111,18 +152,16 @@ if __name__ == "__main__":
         start_time = int(start_time[0]) * 60 + int(start_time[1])
         for mem in config[1]:
             user, passwd = mem.get("username"), mem.get("password")
-            print("\n\033[1;33m开始 " + user + " 的疫情填报\033[0m")
+            logger_health.info("开始 " + user + " 的疫情填报")
             health_report(user, passwd)
-            print()
             time.sleep(2)
         now_time = time.localtime(time.time())
         now_time = now_time.tm_hour * 60 + now_time.tm_min
 
+        time_next = 0
         if start_time > now_time:
-            print("下次填报将等待", (start_time - now_time), "分钟\n")
-            time.sleep(60 * (start_time - now_time))
+            time_next = start_time - now_time
         else:
-            print("下次填报将等待", (start_time - now_time + 60 * 24), "分钟\n")
-            time.sleep(60 * (start_time - now_time + 60 * 24))
-
-
+            time_next = start_time - now_time + 60 * 24
+        logger_health.info("下次填报将等待 " + str(time_next) + " 分钟")
+        time.sleep(60 * time_next)
