@@ -123,7 +123,7 @@ def health_report(username: str, password: str):
             time.sleep(0.5)
             browser.execute_script("javascript:save()")
 
-            bar.update(20, 15)
+            bar.update(20, 8)
             logger_health.info("步骤 5/5：等待填报完成")
             time.sleep(4.5)
 
