@@ -114,10 +114,10 @@ def health_report(username: str, password: str):
             bar.update(20, 6)
             logger_health.info("步骤 4/5：确认并提交填报信息")
             if len(browser.find_elements(by=By.CSS_SELECTOR, value=r"#layui-layer1")) != 0:
-                bar.end()
-                logger_health.error(username + " 第" + "一二三四五六"[i] + "次填报未在规定时间进行，将直接退出")
-                return
-            browser.find_elements(by=By.CSS_SELECTOR, value=r'.weui-btn.weui-btn_primary')[0].click()
+                logger_health.warning(username + " 第" + "一二三四五六"[i] + "次填报未在规定时间进行，将强制填报")
+                browser.find_elements(by=By.CSS_SELECTOR, value=r'.layui-layer-btn0')[0].click()
+                time.sleep(1)
+            browser.execute_script("javascript:go_sub()")
             time.sleep(1.5)
             browser.find_elements(by=By.CSS_SELECTOR, value=r'.weui-cells.weui-cells_checkbox')[0].click()
             time.sleep(0.5)
