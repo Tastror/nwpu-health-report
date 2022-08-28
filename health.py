@@ -40,7 +40,7 @@ class LoggerHealth:
             'health.log', mode="a", maxBytes=1024*1024, backupCount=2
         )
         rh_formatter = logging.Formatter(
-            "%(asctime)s - %(module)s - %(funcName)s - %(levelname)s - %(message)s"
+            "%(asctime)s - %(module)s - %(levelname)s - %(message)s"
         )
         hfh.setFormatter(rh_formatter)
         self.logger_health.addHandler(hfh)
@@ -71,7 +71,7 @@ logger_health = LoggerHealth()
 
 def health_report(username: str, password: str):
 
-    logger_health.warning("当前时间" + time.asctime(time.localtime(time.time())))
+    logger_health.info("当前时间" + time.asctime(time.localtime(time.time())))
     logger_health.info(username + " 开始疫情填报")
 
     try_time: int = 6
@@ -148,20 +148,22 @@ if __name__ == "__main__":
 
         # 可以在运行时手动更新 config.json
         config: dict = json.load(open('./config.json', 'r', encoding='utf-8'))
-        start_time = re.split("[:：.]", config[0])
+        start_time = re.split("[:：.]", config.get("time", "6:00"))
         start_time = int(start_time[0]) * 60 + int(start_time[1])
-        for mem in config[1]:
+        users = config.get("users", [])
+
+        logger_health.warning("共有 " + str(len(users)) + " 人等待填报")
+        index = 1
+        for mem in users:
+            logger_health.warning("当前填报人次 " + str(index) + "/" + str(len(users)))
+            index += 1
             user, passwd = mem.get("username"), mem.get("password")
             logger_health.info("开始 " + user + " 的疫情填报")
             health_report(user, passwd)
             time.sleep(2)
+
         now_time = time.localtime(time.time())
         now_time = now_time.tm_hour * 60 + now_time.tm_min
-
-        time_next = 0
-        if start_time > now_time:
-            time_next = start_time - now_time
-        else:
-            time_next = start_time - now_time + 60 * 24
+        time_next = start_time - now_time if start_time > now_time else start_time - now_time + 60 * 24
         logger_health.info("下次填报将等待 " + str(time_next) + " 分钟")
         time.sleep(60 * time_next)

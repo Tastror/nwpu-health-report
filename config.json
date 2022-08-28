@@ -1,6 +1,6 @@
-[
-  "21:10",
-  [
+{
+  "time": "21:10",
+  "users": [
     {
       "username": "2020000000",
       "password": "123456"
@@ -10,4 +10,4 @@
       "password": "hello,world"
     }
   ]
-]
+}
