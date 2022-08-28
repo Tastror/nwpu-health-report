@@ -71,7 +71,7 @@ logger_health = LoggerHealth()
 
 def health_report(username: str, password: str):
 
-    logger_health.info("当前时间" + time.asctime(time.localtime(time.time())))
+    logger_health.warning("当前时间" + time.asctime(time.localtime(time.time())))
     logger_health.info(username + " 开始疫情填报")
 
     try_time: int = 6
