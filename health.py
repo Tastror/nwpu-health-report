@@ -117,6 +117,15 @@ def health_report(username: str, password: str):
 
             bar.update(20, 6)
             logger_health.info("步骤 4/5：确认并提交填报信息")
+            text = browser.find_elements(by=By.CSS_SELECTOR, value=r'#rbxx_div .page__top2 .page__title i')[0] \
+                .get_attribute("innerText")
+            logger_health.debug("填报提醒内容：" + text)
+            if "您已提交今日填报" in text:
+                logger_health.warning("今日已填报，将不再继续进行填报～")
+                bar.end()
+                logger_health.info(username + " 疫情填报完成")
+                success = True
+                break
             if len(browser.find_elements(by=By.CSS_SELECTOR, value=r"#layui-layer1")) != 0:
                 logger_health.warning(username + " 第" + "一二三四五六"[i] + "次填报未在规定时间进行，将强制填报")
                 browser.find_elements(by=By.CSS_SELECTOR, value=r'.layui-layer-btn0')[0].click()
