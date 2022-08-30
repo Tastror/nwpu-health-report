@@ -34,7 +34,7 @@ class TrangeBar:
 class LoggerHealth:
     def __init__(self):
         self.logger_health = logging.getLogger("health")
-        self.logger_health.setLevel(logging.INFO)
+        self.logger_health.setLevel(logging.DEBUG)
 
         hfh = logging.handlers.RotatingFileHandler(
             'health.log', mode="a", maxBytes=1024*1024, backupCount=2
@@ -74,11 +74,15 @@ def health_report(username: str, password: str):
     logger_health.warning("当前时间" + time.asctime(time.localtime(time.time())))
     logger_health.info(username + " 开始疫情填报")
 
+    suffix_list = ['', 'fx']
     try_time: int = 6
     success: bool = False
 
     for i in range(try_time):
+        used_suffix = suffix_list[i % 2]
+
         logger_health.info(username + " 第" + "一二三四五六"[i] + "次填报开始")
+        logger_health.debug("suffix = " + ("None" if used_suffix == "" else used_suffix))
         bar = TrangeBar(100)
 
         try:
@@ -117,11 +121,11 @@ def health_report(username: str, password: str):
                 logger_health.warning(username + " 第" + "一二三四五六"[i] + "次填报未在规定时间进行，将强制填报")
                 browser.find_elements(by=By.CSS_SELECTOR, value=r'.layui-layer-btn0')[0].click()
                 time.sleep(1)
-            browser.execute_script("javascript:go_sub()")
+            browser.execute_script("javascript:go_sub" + used_suffix + "()")
             time.sleep(1.5)
             browser.find_elements(by=By.CSS_SELECTOR, value=r'.weui-cells.weui-cells_checkbox')[0].click()
             time.sleep(0.5)
-            browser.execute_script("javascript:save()")
+            browser.execute_script("javascript:save" + used_suffix + "()")
 
             bar.update(20, 8)
             logger_health.info("步骤 5/5：等待填报完成")
