@@ -5,9 +5,9 @@ NWPU 疫情填报
 
 - clone 本仓库
 
-- 安装 chrome
+- 安装 python3 与 chrome 浏览器
 
-- 安装依赖项
+- 在 python3 中安装 requirements 依赖项
 
 - 仿照样例修改 config.json
 
