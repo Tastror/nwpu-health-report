@@ -101,19 +101,36 @@ def health_report(username: str, password: str):
 
             bar.update(20, 10)
             logger_health.info("步骤 2/5：访问填报网页")
-            # 不需要从学校网站进一遍
-            # browser.get("https://ecampus.nwpu.edu.cn")
-            browser.get('''http://yqtb.nwpu.edu.cn/wx/xg/yz-mobile/index.jsp''')
-            time.sleep(1)
+            browser.get("""https://yqtb.nwpu.edu.cn/wx/ry/jrsb_xs.jsp""")
+            use_password = browser.find_elements(by=By.CSS_SELECTOR, value=r'[role=menubar] [role=menuitem]:last-child')[0]
+            use_password.click()
 
             bar.update(20, 10)
             logger_health.info("步骤 3/5：填写账号密码并跳转")
             browser.find_elements(by=By.CSS_SELECTOR, value=r'#username')[0].send_keys(username)
             browser.find_elements(by=By.CSS_SELECTOR, value=r'#password')[0].send_keys(password)
-            browser.find_elements(by=By.CSS_SELECTOR, value=r'[name=submit]')[0].click()
-            time.sleep(3)
-            # 新版不需要再进入一次了，会直接跳转到填报
-            # browser.get('''http://yqtb.nwpu.edu.cn/wx/ry/jrsb_xs.jsp''')
+            browser.find_elements(by=By.CSS_SELECTOR, value=r"#fm1 [name=button]")[0].click()
+            time.sleep(1.5)
+            phone_code_needed = browser.find_elements(by=By.CSS_SELECTOR, value=r'div[role=dialog]')
+            if len(phone_code_needed) == 0:
+                logger_health.info("很幸运，这次不需要验证码")
+            else:
+                logger_health.warning("需要验证码，请手动处理")
+                # 采用邮件方式处理
+                # other_method = browser.find_elements(by=By.CSS_SELECTOR, value=r'div[role=dialog] img.safe-icon')[0]
+                # other_method.click()
+                send_phone_code = browser.find_elements(by=By.CSS_SELECTOR, value=r'div[role=dialog] .code-wrap > button')[0]
+                input("按回车开始获取验证码: (Enter here) ")
+                logger_health.warning("正在获取验证码")
+                send_phone_code.click()
+                phone_code = input("请输入得到的验证码: ")
+                input_area = browser.find_elements(by=By.CSS_SELECTOR, value=r'div[role=dialog] .code-wrap input')[0]
+                input_area.send_keys(phone_code)
+                confirm_button = browser.find_elements(by=By.CSS_SELECTOR, value=r'div[role=dialog] .el-dialog__footer button')[0]
+                confirm_button.click()
+                time.sleep(1.5)
+            browser.get('''http://yqtb.nwpu.edu.cn/wx/ry/jrsb_xs.jsp''')
+            time.sleep(0.5)
 
             bar.update(20, 6)
             logger_health.info("步骤 4/5：确认并提交填报信息")
