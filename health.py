@@ -90,11 +90,14 @@ def health_report(username: str, password: str):
             bar.update(20, 8)
             logger_health.info("步骤 1/5：启动浏览器")
             option = webdriver.ChromeOptions()
+            option.add_argument("--disable-dev-shm-usage")
+            option.add_argument("--disable-extensions")
             option.add_argument("--headless")
             option.add_argument('--log-level=3')
             option.add_argument("--disable-logging")
             option.add_argument("--disable-notifications")
             option.add_argument("--disable-popup-blocking")
+            option.add_argument("--no-sandbox")
             os.environ['WDM_LOG_LEVEL'] = '0'
             warnings.filterwarnings("ignore")
             browser = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=option)
@@ -120,6 +123,7 @@ def health_report(username: str, password: str):
                 # other_method = browser.find_elements(by=By.CSS_SELECTOR, value=r'div[role=dialog] img.safe-icon')[0]
                 # other_method.click()
                 send_phone_code = browser.find_elements(by=By.CSS_SELECTOR, value=r'div[role=dialog] .code-wrap > button')[0]
+                logger_health.warning("按回车键开始获取验证码")
                 input("按回车开始获取验证码: (Enter here) ")
                 logger_health.warning("正在获取验证码")
                 send_phone_code.click()
